@@ -139,7 +139,15 @@ componentWillMount() {
         accessibilityLabel="Home"
         />
       </View>
-
+		
+	   <View>     
+        <Button
+        onPress={() => { Actions.camera(); }}
+        title="Camera"
+        color="#841584"
+        accessibilityLabel="Camera"
+        />
+      </View>
     </View>
 
     );
