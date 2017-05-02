@@ -108,7 +108,7 @@ const uploadImage = (uri, mime = 'application/octet-stream') => {
             if (error) {
              alert('erro');
          } else {
-             alert('salvo realm'); 
+             // alert('salvo realm'); 
              //remover os dados do Realm depois de salvar no FireBase
              realm.write(() => {
                realm.delete(dados);
