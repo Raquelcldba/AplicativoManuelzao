@@ -1,11 +1,12 @@
 import React, { Component } from 'react';
-import { AppRegistry } from 'react-native';
+import { AppRegistry, StyleSheet } from 'react-native';
 import { Container, Header, Title, Content, Body, Spinner } from 'native-base';
 import { Router, Scene, Actions,Switch} from 'react-native-router-flux';
 import firebase from 'firebase';
 
 
 import Login from './src/components/login/login';
+import Cadastro from './src/components/cadastro/cadastro';
 import Sobre from './src/components/about/sobre';
 import Home from './src/components/home/home';
 import Galeria from './src/components/galeria/galeria';
@@ -38,10 +39,11 @@ export default class mlz extends Component {
 
         if(this.state.loggedIn) { 
             return (
-                <Container style = {{ backgroundColor: '#f2f2f2' } }>
-                    <Router>
-                        <Scene key = "root">            
+                <Container>
+                    <Router  navigationBarStyle={{backgroundColor: '#f2f2f2'}}  titleStyle={{color : "#0070c9"}}>
+                        <Scene key = "root" >            
                             <Scene key = 'home' component = { Home } title = 'Home' hideNavBar = { true } initial={true}/> 
+                            <Scene key = 'Cadastro' component = { Cadastro } title = 'Cadastro' hideNavBar = { false } /> 
                             <Scene key = 'CameraMLZ' component = { CameraMLZ } title = 'cameraMLZ' hideNavBar = { true }  />
                              <Scene key = 'Galeria' component = { Galeria } title = 'Galeria'  />
                             <Scene key = 'login' component = { Login } title = 'Login' hideNavBar / >             
@@ -51,11 +53,12 @@ export default class mlz extends Component {
             )            
         } else {
              return ( 
-                <Container style = {{ backgroundColor: '#f2f2f2' } }>
-                    <Router>
-                        <Scene key = "root"  >   
+                <Container>
+                    <Router navigationBarStyle={{backgroundColor: '#f2f2f2'}}  titleStyle={{color : "#0070c9"}}>
+                        <Scene key = "root" >   
                             <Scene key = 'login' component = { Login } title = 'Login' hideNavBar initial={true}/ >
                             <Scene key = 'home' component = { Home } title = 'Home' hideNavBar = { true }/>  
+                            <Scene key = 'Cadastro' component = { Cadastro } title = 'Cadastro' hideNavBar = { false } /> 
                             <Scene key = 'sobre' component = { Sobre } title = 'Sobre' hideNavBar = { false } />                             
                             <Scene key = 'CameraMLZ' component = { CameraMLZ } title = 'cameraMLZ' hideNavBar = { true }  />
                             <Scene key = 'Galeria' component = { Galeria } title = 'Galeria'  />                      

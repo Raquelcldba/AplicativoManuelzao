@@ -47,9 +47,6 @@ const uploadImage = (uri, mime = 'application/octet-stream') => {
   })
 }
 
-const teste = () => {
-  alert()
-}
 
 export default class Galeria extends Component {
   constructor(props) {
@@ -59,18 +56,20 @@ export default class Galeria extends Component {
     };
   }
 
-  getFoto = () => {
-      this.props.updateStateFoto(this.state.foto);  
+  getFoto = (foto) => {
+      this.props.updateStateFoto(foto);  
+
   }
   
    _pickImage() {
       this.setState({ uploadURL: ''})
 
-      ImagePicker.launchImageLibrary({}, response  => {     
-        uploadImage(response.uri)
+      ImagePicker.launchImageLibrary({}, response  => {   
+      this.getFoto(response.uri);
+        // uploadImage(response.uri)
        
-          .then(url => this.setState({ foto: url }), this.setState({ pathImage: response.uri }),alert(this.state.foto))
-          .catch(error => console.log(error));
+        //   .then(url => this.setState({ foto: url }), this.setState({ pathImage: response.uri }))
+        //   .catch(error => console.log(error));
           
       })
     }
@@ -81,7 +80,7 @@ export default class Galeria extends Component {
 
   render() {
     return (
-      <View style={ styles.container }>    
+      <View >    
         <Button light iconLeft full  onPress={ () => this._pickImage() }>
             <Icon name='image' />
             <Text>Enviar imagem da Galeria</Text>

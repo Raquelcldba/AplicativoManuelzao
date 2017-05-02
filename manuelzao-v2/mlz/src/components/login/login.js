@@ -13,18 +13,22 @@ constructor(props) {
 }
 
 logarUsuario() {
-    let senha = this.state.senha;
-    let email = this.state.email;
-    const usuario = firebase.auth();
-    usuario.signInWithEmailAndPassword(
-      email,
-      senha
-    ).then(Actions.home, this.saveUserLocalStorage(email, senha) )
-    .catch(
-      (erro) => {
-        alert(erro.message);
-      }
-    ); 
+  if(this.state.email) { 
+      let senha = this.state.senha;
+      let email = this.state.email;
+      const usuario = firebase.auth();
+      usuario.signInWithEmailAndPassword(
+        email,
+        senha
+      ).then(() => {this.saveUserLocalStorage(email, senha), Actions.home() })
+      .catch(
+        (erro) => {
+          alert(erro.message);
+        }
+      ); 
+   } else{
+      alert('Preencher o E-mail e a Senha')
+     }
   }
 
   saveUserLocalStorage(email, senha) {
@@ -43,11 +47,12 @@ logarUsuario() {
           </View>
           <Form style={{marginBottom: 20, marginTop:30}}>
             <Item rounded style={{ margin: 10}}>
-              <Input onChangeText={(email) => this.setState({ email }) }  style={{ padding: 10, paddingLeft:20, fontSize:12}} rounded placeholder="Username" />
+              <Input   keyboardType="email-address" onChangeText={(email) => this.setState({ email }) }  style={{ padding: 10, paddingLeft:20, fontSize:12}} rounded placeholder="E-mail" />
             </Item>
             <Item style={{ margin: 10}} rounded>
-              <Input onChangeText={(senha) => this.setState({ senha })} style={{ padding: 10, paddingLeft:20,fontSize:12}} placeholder="Password" />
+              <Input secureTextEntry={true}  onChangeText={(senha) => this.setState({ senha })} style={{ padding: 10, paddingLeft:20,fontSize:12}} placeholder="Senha" />
             </Item>
+             <Text  onPress={ () => { Actions.Cadastro() }} style={{ fontSize: 10, alignItems: 'flex-start', marginLeft: 20, color:'gray'}}>Não possui uma conta? Cadastre-se</Text>
           </Form>
           <Button  onPress={ () => { this.logarUsuario(); }} style={{ margin: 10}} block info>
             <Text>Logar</Text>

@@ -1,16 +1,16 @@
 import React, { Component } from 'react';
 import firebase from 'firebase';
 import { Container, Content, Picker, Text, Button, ListItem, Icon, Grid, Col, Input, Thumbnail} from 'native-base';
-import {StyleSheet, TextInput, Image, AsyncStorage, Platform} from 'react-native';
+import {StyleSheet, TextInput, Image, AsyncStorage, Platform, AppState} from 'react-native';
 import { Router, Scene, Actions } from 'react-native-router-flux';
 import CameraMLZ from '../camera/camera';
 import Galeria from '../galeria/galeria';
 import RNFetchBlob from 'react-native-fetch-blob';
 const Realm = require('realm');
 
-
 const Item = Picker.Item
 
+//      <Galeria updateStateFoto={this.updateStateFoto}/>
 // Prepare Blob support
 const Blob = RNFetchBlob.polyfill.Blob
 const fs = RNFetchBlob.fs
@@ -66,72 +66,97 @@ const uploadImage = (uri, mime = 'application/octet-stream') => {
 
  let realm = new Realm({schema: [AguaSchema] });
 
-   function pickImage(pathImageLocal, key, uid) { 
-      uploadImage(pathImageLocal)
-      .then(url => teste(url, key, uid))
-      .catch(error => console.log(error));    
+ function pickImage(pathImageLocal, key, uid) { 
+    uploadImage(pathImageLocal)
+    .then(url => atualizarFotoFirebase(url, key, uid))
+    .catch(error => console.log(error));    
+  }
+
+  function atualizarFotoFirebase(linkImagemFirebase, key, uid) {   
+    firebase.database().ref(uid).child(key).update({foto:linkImagemFirebase })
+  }
+
+  function salvarNoFirebase() {   
+    // pega os dados salvo no banco local (Realm)
+    var dados =  realm.objects('dadosAgua');
+    dados.forEach(salvaDadosFirebase);
+
+    function salvaDadosFirebase(item, index){      
+      var user = firebase.auth().currentUser;
+      var uid;
+      if (user != null) {     
+        uid = user.uid; 
+      }
+      dadosEnviado = firebase.database().ref(uid);
+      var key =  firebase.database().ref().push().key      
+
+      pickImage(item.foto, key, uid);
+
+      firebase.database().ref(uid).child(key).set({
+           localização: item.locale,
+            text: item.text,
+           tipoRegiao: item.tipoRegiao,          
+           cordaAgua: item.corAgua,
+           odorAgua: item.odorAgua,
+           materialSuspensao: item.materialSuspensao,
+           esgoto: item.esgoto,
+           residuoSolido: item.residuoSolido,
+           erosao:item.erosao,
+           vegetacaoMargem: item.vegetacaoMargem,
+           foto: item.foto
+         }, function(error) {
+            if (error) {
+             alert('erro');
+         } else {
+             alert('salvo realm'); 
+             //remover os dados do Realm depois de salvar no FireBase
+             realm.write(() => {
+               realm.delete(dados);
+            });
+          }
+      });                      
+    }  
+  }
+
+
+  function salvaDadosFirebaseOnline(locale, text, tipoRegiao,  corAgua, odorAgua, materialSuspensao, esgoto, residuoSolido, erosao, vegetacaoMargem, foto){  
+    var dados =  realm.objects('dadosAgua');   
+
+    var user = firebase.auth().currentUser;
+    var uid;
+    if (user != null) {     
+      uid = user.uid; 
     }
 
-    function teste(linkImagemFirebase, key, uid) {   
-      firebase.database().ref(uid).child(key).update({foto:linkImagemFirebase })
-    }
+    dadosEnviado = firebase.database().ref(uid);
+    var key =  dadosEnviado.push().key      
 
-    function salvarNoFirebase() {
-     var connectedRef = firebase.database().ref(".info/connected");
-      connectedRef.on("value", function(snap) {    
-        // verifica se há conexão com internet
-        if (snap.val() === true) {
-          alert("connected");
+    //função para retornar a foto do storage do firebase
+    pickImage(foto, key, uid);
 
-          // pega os dados salvo no banco local (Realm)
-          var dados =  realm.objects('dadosAgua');
-          dados.forEach(salvaDadosFirebase);
-
-          function salvaDadosFirebase(item, index){      
-            var user = firebase.auth().currentUser;
-            var uid;
-            if (user != null) {     
-              uid = user.uid; 
-            }
-
-            dadosEnviado = firebase.database().ref();
-            var key =  firebase.database().ref().push().key      
-
-            pickImage(item.foto, key, uid);
-console.log(index)
-            firebase.database().ref(uid).child(key).set(
-               {
-                 localização: item.locale,
-                 tipoRegiao: item.tipoRegiao,
-                 text: item.text,
-                 cordaAgua: item.corAgua,
-                 odorAgua: item.odorAgua,
-                 materialSuspensao: item.materialSuspensao,
-                 esgoto: item.esgoto,
-                 residuoSolido: item.residuoSolido,
-                 erosao:item.erosao,
-                 vegetacaoMargem: item.vegetacaoMargem,
-                 foto: item.foto
-               }, function(error) {
-                  if (error) {
-                   alert('erro');
-               } else {
-                   alert('salvo realm'); 
-                   //remover os dados do Realm depois de salvar no FireBase
-                   realm.write(() => {
-                     realm.delete(dados);
-                  });
-                }
-
-              });         
-          }    
-       
-        } else {
-          alert("not connected");
-        }
-
-      });
-    }
+    firebase.database().ref(uid).child(key).set({
+       localização:locale, 
+       text: text,     
+       tipoRegiao: tipoRegiao,      
+       corAgua: corAgua,
+       odorAgua: odorAgua,
+       materialSuspensao: materialSuspensao,
+       esgoto: esgoto,
+       residuoSolido: residuoSolido,
+       erosao: erosao,
+       vegetacaoMargem: vegetacaoMargem,    
+       foto: foto
+      
+     }, function(error) {
+        if (error) {
+         alert('erro ao salvar no firebase');
+     } else {  
+        realm.write(() => {
+           realm.delete(dados);
+        });          
+      }
+    });                  
+  }  
 
 export default class PickerExample extends Component {
 
@@ -150,8 +175,7 @@ constructor(props) {
         vegetacaoMargem: 'Pouco alterada',
         initialPosition: 'unknown',
         lastPosition: 'unknown',
-        foto: 'semFoto', 
-        uploadURL: 'n/a'
+        foto: 'semFoto'    
     }
 }
 
@@ -159,8 +183,8 @@ constructor(props) {
  watchID: ?number = null;
 
   componentDidMount() {
-    salvarNoFirebase() 
-
+    salvarNoFirebase();   
+   
     navigator.geolocation.getCurrentPosition(
       (position) => {
         var initialPosition = JSON.stringify(position);
@@ -176,10 +200,8 @@ constructor(props) {
   }
 
   componentWillUnmount() {
-    navigator.geolocation.clearWatch(this.watchID);
-
+   navigator.geolocation.clearWatch(this.watchID);
   }
-  /* end locale */
 
   openCamera() {
     Actions.CameraMLZ({updateStateFoto: this.updateStateFoto});    
@@ -189,42 +211,54 @@ constructor(props) {
     Actions.Galeria({updateStateFoto: this.updateStateFoto});    
   }
 
-   updateStateFoto = (foto) => {
+  updateStateFoto = (foto) => {
+   
     this.setState({
         foto: foto
     });
-    alert(this.state.foto)
-      
-}
+
+  }
   
   async salvarDados() { 
-    const locale = this.state.lastPosition;
-    const text = this.state.text;
-    const tipoRegiao = this.state.tipoRegiao;
-    const corAgua = this.state.corAguaselected;  
-    const odorAgua = this.state.odorSelected;
-    const materialSuspensao = this.state.materialSuspensao;
-    const esgoto = this.state.esgoto;
-    const residuoSolido = this.state.residuoSolido;
-    const erosao = this.state.erosao;
-    const vegetacaoMargem = this.state.vegetacaoMargem;
-    const foto = this.state.foto;
+    var locale = this.state.lastPosition;
+    var text = this.state.text;
+    var tipoRegiao = this.state.tipoRegiao;
+    var corAgua = this.state.corAguaselected;  
+    var odorAgua = this.state.odorSelected;
+    var materialSuspensao = this.state.materialSuspensao;
+    var esgoto = this.state.esgoto;
+    var residuoSolido = this.state.residuoSolido;
+    var erosao = this.state.erosao;
+    var vegetacaoMargem = this.state.vegetacaoMargem;
+    var foto = this.state.foto;
 
-      realm.write(() => {
-        let salvarDadosAgua = realm.create('dadosAgua', {
-            locale: locale ,
-            tipoRegiao: tipoRegiao,
-            text: text,
-            corAgua: corAgua,
-            odorAgua: odorAgua,
-            materialSuspensao: materialSuspensao,
-            esgoto: esgoto,
-            residuoSolido:residuoSolido, 
-            erosao: erosao,
-            vegetacaoMargem: vegetacaoMargem,
-            foto: foto,
-        });      
-      }); 
+   salvaDadosFirebaseOnline(locale,text,tipoRegiao, corAgua, odorAgua, materialSuspensao, esgoto, residuoSolido, erosao, vegetacaoMargem, foto)
+
+     // verifica se há conexão com internet, se nao tiver salva no Realm
+    var connectedRef = firebase.database().ref(".info/connected");
+    connectedRef.on("value", function(snap) {  
+      if (snap.val() === true) {
+        // alert("connected");            
+       } else {
+          // alert("not connected");
+          realm.write(() => {
+            let salvarDadosAgua = realm.create('dadosAgua', {
+              locale: locale ,
+              text: text,
+              tipoRegiao: tipoRegiao,             
+              corAgua: corAgua,
+              odorAgua: odorAgua,
+              materialSuspensao: materialSuspensao,
+              esgoto: esgoto,
+              residuoSolido:residuoSolido, 
+              erosao: erosao,
+              vegetacaoMargem: vegetacaoMargem,
+              foto: foto,
+            });      
+        }); 
+      }
+    });
+
    this.setState({
       selectedItem: undefined,
       text: '',
@@ -240,8 +274,9 @@ constructor(props) {
       lastPosition: 'unknown',
       foto: 'semFoto', 
       uploadURL: 'n/a'
-      });
-      salvarNoFirebase();
+    });
+
+    alert('Informação enviada, obrigado por colaborar : )')
 
   }
 
@@ -255,37 +290,21 @@ constructor(props) {
     this.props.setItensSelecionado(corAguaselected);
   }
 
- deslogarUsuario() {
-   AsyncStorage.multiRemove(['user','password'],(err, result) => {
-    alert(result);
-  });
-
-   const usuario = firebase.auth();
-   usuario.signOut();
-   Actions.login();
-  }
-
-
   render() {  
     return ( 
-    <Content >   
-     <Image  
-        source={{ uri: this.state.foto }}   
-        />
-           <Content>                 
-              <Thumbnail square size={80}   source={{uri: this.state.foto}} />
-            </Content>
+    <Content >  
 
       <Galeria updateStateFoto={this.updateStateFoto}/>
-
-     <Button transparent  iconRight  full 
+       
+     <Button transparent  iconRight  full  style={{marginTop:20}}
         onPress={() => {  this.openCamera() }}>
-        <Icon  style={{fontSize: 60, marginLeft:0}} name='camera' />                       
-      </Button> 
+        <Icon  style={{fontSize: 60, marginLeft:0, color:'#62b1f6'}} name='camera' />  
 
+      </Button> 
+        <Image   style={{ height:80, resizeMode: 'contain'}} source={{ uri: this.state.foto }} />
       <Text style={{fontSize:14, margin:20, marginBottom:5,  color:'#67aefc'}}>Descreva a situação:</Text>
         <TextInput
-          style={{height: 80, borderColor: '#d6d6d6', borderWidth: 1, paddingLeft:20, margin: 10, marginBottom: 40, marginTop:0}}
+          style={{height: 60, borderColor: '#d6d6d6', borderWidth: 1, paddingLeft:20, margin: 10, marginBottom: 40, marginTop:0}}
           onChangeText={(text) => this.setState({text})}
           value={this.state.text}
         />       
@@ -387,11 +406,7 @@ constructor(props) {
       <Button block info style={{ margin: 10, marginTop:50}}
            onPress={() => {  this.salvarDados() }} > 
           <Text>Salvar</Text>
-      </Button>   
-         <Button block info style={{ margin: 10, marginTop:50}}
-           onPress={() => {  this.deslogarUsuario() }} > 
-          <Text>Sair</Text>
-      </Button>               
+      </Button>              
      </Content>                          
     );
   }

@@ -79,10 +79,10 @@ takePicture() {
  renderImage() {
     return (   
       <Container>
-        <Header>
+        <Header style={{backgroundColor:'#f2f2f2'}}>
             <Left>
                 <Button transparent    onPress={() => this.setState({ path: null })} >
-                    <Icon name='arrow-back' />
+                    <Icon style={{color:'#0070c9'}} name='arrow-back' />
                 </Button>
             </Left>
             <Body>
@@ -105,6 +105,11 @@ takePicture() {
 
   renderCamera() {
     return (
+      <View>
+      <Button transparent primary onPress={ () => {  this.closeCamera()  }}  style={{ alignSelf: 'flex-end', marginTop: 15}}>
+            <Icon name='close' style={{fontSize:60, backgroundColor: 'transparent'}} />  
+             <Text style={{color: 'red'}}>{this.props.text}</Text>
+          </Button>
       <Camera
         ref={(cam) => {
           this.camera = cam;
@@ -114,10 +119,8 @@ takePicture() {
         captureTarget={Camera.constants.CaptureTarget.disk}
       >
 
-         <Button transparent primary onPress={ () => {  this.closeCamera()  }} >
-            <Icon name='close' style={{fontSize:60, backgroundColor: 'transparent'}} />  
-             <Text style={{color: 'red'}}>{this.props.text}</Text>
-          </Button>
+         
+
         <TouchableHighlight
           style={styles.capture}
           onPress={this.takePicture.bind(this)}
@@ -127,6 +130,7 @@ takePicture() {
         <View />
         </TouchableHighlight>
       </Camera>
+         </View>
     );
   }
 
