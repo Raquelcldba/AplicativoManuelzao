@@ -64,15 +64,17 @@ takePicture() {
 
   getFoto = () => {
       this.props.updateStateFoto(this.state.path);
+      Actions.pop(); 
+
   }
 
-   _pickImage() {
-      this.setState({ uploadURL: ''})
-      uploadImage(this.state.path)
-      .then(url => this.setState({ uploadURL: url }))
-      .catch(error => console.log(error)); 
-      alert('ok')
-  }
+  //  _pickImage() {
+  //     this.setState({ uploadURL: ''})
+  //     uploadImage(this.state.path)
+  //     .then(url => this.setState({ uploadURL: url }), alert(this.state.uploadURL))
+  //     .catch(error => console.log(error)); 
+  //     alert('ok')
+  // }
 
  renderImage() {
     return (   
@@ -87,14 +89,12 @@ takePicture() {
                 <Title style={{color:'#67aefc'}}>Foto</Title>
             </Body>
             <Right>
-                <Button transparent  onPress={() => this._pickImage()}>
+                <Button transparent  onPress={() => this.getFoto()}>
                     <Text style={{color:'#67aefc', fontSize: 14, fontWeight:'bold'}}>OK</Text>
                 </Button>
             </Right>
         </Header>
-           <Button transparent  onPress={() => this.getFoto()}>
-                    <Text style={{color:'#67aefc', fontSize: 14, fontWeight:'bold'}}>UE</Text>
-                </Button>
+          
         <Image
         source={{ uri: this.state.path }}
         style={styles.preview}

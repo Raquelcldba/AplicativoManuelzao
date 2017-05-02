@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import {AppRegistry, View} from 'react-native';
+import {AppRegistry, View, AsyncStorage} from 'react-native';
 import { Row, Form, Item, Grid, Input, Col, Container, Header, Title, Content, Footer, FooterTab, Button, Left, Right, Body, Icon , Text,Thumbnail} from 'native-base';
 import firebase from 'firebase';
 import FirebaseConfig from '../firebase/firebase_config';
@@ -19,12 +19,19 @@ logarUsuario() {
     usuario.signInWithEmailAndPassword(
       email,
       senha
-    ).then(Actions.home)
+    ).then(Actions.home, this.saveUserLocalStorage(email, senha) )
     .catch(
       (erro) => {
         alert(erro.message);
       }
     ); 
+  }
+
+  saveUserLocalStorage(email, senha) {
+   AsyncStorage.multiSet([ ['user', email], ['password', senha] ]);
+    //  AsyncStorage.multiGet(['user','password'],(err, result) => {
+    //   alert(result);
+    // });
   }
 
   render() {
@@ -49,5 +56,6 @@ logarUsuario() {
       </Container>
     );
   }
+  
 }
 

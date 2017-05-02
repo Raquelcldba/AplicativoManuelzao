@@ -60,8 +60,7 @@ export default class Galeria extends Component {
   }
 
   getFoto = () => {
-      this.props.updateStateFoto(this.state.uploadURL);
-  
+      this.props.updateStateFoto(this.state.foto);  
   }
   
    _pickImage() {
@@ -70,7 +69,7 @@ export default class Galeria extends Component {
       ImagePicker.launchImageLibrary({}, response  => {     
         uploadImage(response.uri)
        
-          .then(url => this.setState({ uploadURL: url }), this.setState({ pathImage: response.uri }),alert(this.state.uploadURL))
+          .then(url => this.setState({ foto: url }), this.setState({ pathImage: response.uri }),alert(this.state.foto))
           .catch(error => console.log(error));
           
       })

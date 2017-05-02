@@ -10,6 +10,7 @@ import Sobre from './src/components/about/sobre';
 import Home from './src/components/home/home';
 import Galeria from './src/components/galeria/galeria';
 import CameraMLZ from './src/components/camera/camera';
+import { AsyncStorage} from 'react-native';
 
 
 export default class mlz extends Component {
@@ -17,20 +18,25 @@ export default class mlz extends Component {
         super(props);
         this.state = {
           loggedIn: false,
-          loaded: false
+          loaded: false,
+          user: ''
         };
     }
 
+    // verificar no storage local
+    async  verificarUsuarioLogado() {
+        var value = await AsyncStorage.getItem('user')
+
+        if(value) {
+             this.setState({ loggedIn: true, loaded: true })
+        } else {
+             this.setState({ loggedIn: false, loaded: true })               
+        }
+        return value
+    }
+
     componentWillMount() {
-        firebase.auth().onAuthStateChanged(function(user) {
-            if (user) {
-                 this.setState({ loggedIn: true, loaded: true });
-
-            } else { 
-                  this.setState({ loggedIn: false, loaded: true });                
-
-            }
-        }.bind(this));
+        this.verificarUsuarioLogado();
     }
 
     render() {    
