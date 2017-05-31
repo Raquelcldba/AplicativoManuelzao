@@ -27,7 +27,7 @@ export default class HeaderMlz extends Component {
 	                </Button>
 	            </Left>
 	            <Body>
-	                <Title style={{color:'#67aefc'}}>{this.props.title}</Title>
+	                <Title style={{ color:'#0070c9', fontWeight: '400' }}>{this.props.title}</Title>
 	            </Body>
 	                 <Right>
                         <Button transparent

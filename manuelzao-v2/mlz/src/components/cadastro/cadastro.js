@@ -69,15 +69,15 @@ export default class Cadastro extends Component {
 
   render() {
     return (   
-      <View style={{ paddingTop: 70 }}>
-        <Item rounded style={{ margin: 10}}>
+      <View style={{ paddingTop: 70, marginLeft: 16, marginRight: 16}}>
+        <Item rounded style={{ marginTop: 20}}>
           <Input  keyboardType="email-address" onChangeText={(email) => this.setState({ email })} style={{ padding: 10, paddingLeft:20, fontSize:12}} rounded placeholder="Informe seu E-mail" />
         </Item>
-        <Item rounded style={{ margin: 10}}>
+        <Item rounded style={{ marginTop: 20}}>
           <Input secureTextEntry={true} onChangeText={(senha) => this.setState({ senha })} style={{ padding: 10, paddingLeft:20, fontSize:12}} rounded placeholder="Informe sua senha" />
         </Item>  
       <View>  
-         <Button onPress={() => { this.cadastraUsuario(); }} style={{ margin: 10}} block info>
+         <Button onPress={() => { this.cadastraUsuario(); }} style={{ marginTop: 24}} block info>
             <Text>Cadastrar</Text>
           </Button>      
       </View>

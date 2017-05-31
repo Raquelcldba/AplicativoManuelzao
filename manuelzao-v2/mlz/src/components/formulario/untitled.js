@@ -3,14 +3,14 @@ import firebase from 'firebase';
 import { Container, Content, Picker, Text, Button, ListItem, Icon, Grid, Col, Input, Thumbnail} from 'native-base';
 import {StyleSheet, TextInput, Image, AsyncStorage, Platform, AppState} from 'react-native';
 import { Router, Scene, Actions } from 'react-native-router-flux';
+import renderIf from 'render-if/lib/renderIf';
 import CameraMLZ from '../camera/camera';
 import Galeria from '../galeria/galeria';
 import RNFetchBlob from 'react-native-fetch-blob';
 const Realm = require('realm');
-
 const Item = Picker.Item
 
-//      <Galeria updateStateFoto={this.updateStateFoto}/>
+// <Galeria updateStateFoto={this.updateStateFoto}/>
 // Prepare Blob support
 const Blob = RNFetchBlob.polyfill.Blob
 const fs = RNFetchBlob.fs
@@ -71,7 +71,7 @@ const uploadImage = (uri, mime = 'application/octet-stream') => {
     .then(url => atualizarFotoFirebase(url, key, uid))
     .catch(error => console.log(error));    
   }
-
+  // atualiza o endereço da foto com o link do firebase
   function atualizarFotoFirebase(linkImagemFirebase, key, uid) {   
     firebase.database().ref(uid).child(key).update({foto:linkImagemFirebase })
   }
@@ -79,9 +79,9 @@ const uploadImage = (uri, mime = 'application/octet-stream') => {
   function salvarNoFirebase() {   
     // pega os dados salvo no banco local (Realm)
     var dados =  realm.objects('dadosAgua');
-    dados.forEach(salvaDadosFirebase);
+    dados.forEach(salvaDadosDoRealmNoFirebase);
 
-    function salvaDadosFirebase(item, index){      
+    function salvaDadosDoRealmNoFirebase(item, index){      
       var user = firebase.auth().currentUser;
       var uid;
       if (user != null) {     
@@ -106,7 +106,7 @@ const uploadImage = (uri, mime = 'application/octet-stream') => {
            foto: item.foto
          }, function(error) {
             if (error) {
-             alert('erro');
+             alert('erro no bando local');
          } else {
              // alert('salvo realm'); 
              //remover os dados do Realm depois de salvar no FireBase
@@ -158,7 +158,7 @@ const uploadImage = (uri, mime = 'application/octet-stream') => {
     });                  
   }  
 
-export default class PickerExample extends Component {
+export default class Formulario extends Component {
 
 constructor(props) {
     super(props);
@@ -173,9 +173,10 @@ constructor(props) {
         esgoto: 'Não Há',
         erosao: 'Não Há',
         vegetacaoMargem: 'Pouco alterada',
-        initialPosition: 'unknown',
+        initialPosition: '',
         lastPosition: 'unknown',
-        foto: 'semFoto'    
+        foto: 'semFoto',
+        tipoProtocolo: true  
     }
 }
 
@@ -190,7 +191,7 @@ constructor(props) {
         var initialPosition = JSON.stringify(position);
         this.setState({initialPosition});
       },
-      (error) => alert(JSON.stringify(error)),
+      (error) => alert("Por gentileza habilete o GPS!"),
       {enableHighAccuracy: true, timeout: 20000, maximumAge: 1000}
     );
     this.watchID = navigator.geolocation.watchPosition((position) => {
@@ -207,19 +208,25 @@ constructor(props) {
     Actions.CameraMLZ({updateStateFoto: this.updateStateFoto});    
   }
 
-   openGaleria() {
+  openGaleria() {
     Actions.Galeria({updateStateFoto: this.updateStateFoto});    
   }
 
-  updateStateFoto = (foto) => {
-   
+  updateStateFoto = (foto) => {   
     this.setState({
         foto: foto
     });
+  }
 
+
+  selecionarTipoProtocolo = (protocolo) => {   
+    this.setState({
+        tipoProtocolo: protocolo
+    });
   }
   
   async salvarDados() { 
+  if (this.state.lastPosition != "unknown") {
     var locale = this.state.lastPosition;
     var text = this.state.text;
     var tipoRegiao = this.state.tipoRegiao;
@@ -270,15 +277,15 @@ constructor(props) {
       esgoto: 'Não Há',
       erosao: 'Não Há',
       vegetacaoMargem: 'Pouco alterada',
-      initialPosition: 'unknown',
-      lastPosition: 'unknown',
+      initialPosition: '',
+      lastPosition: '',
       foto: 'semFoto', 
       uploadURL: 'n/a'
     });
 
     alert('Informação enviada, obrigado por colaborar : )')
-
-  }
+  } else alert('Por gentileza, habilite o GPS para poder enviar os dados.');
+}
 
   onValueChange (key: string, value: string) {
       const newState = {};
@@ -292,9 +299,13 @@ constructor(props) {
 
   render() {  
     return ( 
-    <Content >  
 
-      <Galeria updateStateFoto={this.updateStateFoto}/>
+    <Content style={{ marginTop: 60 }} >  
+       {renderIf(this.props.tipoProtocolo == "nascente")(
+       <Text>{this.props.tipoProtocolo}</Text>
+        )}  
+
+     <Galeria updateStateFoto={this.updateStateFoto}/>
        
      <Button transparent  iconRight  full  style={{marginTop:20}}
         onPress={() => {  this.openCamera() }}>
@@ -305,7 +316,7 @@ constructor(props) {
       <Text style={{fontSize:14, margin:20, marginBottom:5,  color:'#67aefc'}}>Descreva a situação:</Text>
         <TextInput
           style={{height: 60, borderColor: '#d6d6d6', borderWidth: 1, paddingLeft:20, margin: 10, marginBottom: 40, marginTop:0}}
-          onChangeText={(text) => this.setState({text})}
+          onChangeText={(text) => this.setState( {text} ) }
           value={this.state.text}
         />       
                   
@@ -403,10 +414,11 @@ constructor(props) {
           <Item label='Muito alterada ou ausente' value='Muito alterada ou ausente' />                 
      </Picker>
 
-      <Button block info style={{ margin: 10, marginTop:50}}
+      <Button  block info style={{ margin: 10, marginTop:50}}
            onPress={() => {  this.salvarDados() }} > 
           <Text>Salvar</Text>
-      </Button>              
+      </Button>  
+          
      </Content>                          
     );
   }

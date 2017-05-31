@@ -3,7 +3,6 @@ import {AppRegistry, View, AsyncStorage} from 'react-native';
 import { Row, Form, Item, Grid, Input, Col, Container, Header, Title, Content, Footer, FooterTab, Button, Left, Right, Body, Icon , Text,Thumbnail} from 'native-base';
 import firebase from 'firebase';
 import FirebaseConfig from '../firebase/firebase_config';
-
 import  { Actions } from 'react-native-router-flux';
 export default class Login extends Component {
 constructor(props) {
@@ -20,7 +19,7 @@ logarUsuario() {
       usuario.signInWithEmailAndPassword(
         email,
         senha
-      ).then(() => {this.saveUserLocalStorage(email, senha), Actions.home() })
+      ).then(() => {this.saveUserLocalStorage(email, senha), Actions.tipoCursoDagua() })
       .catch(
         (erro) => {
           alert(erro.message);
@@ -41,19 +40,20 @@ logarUsuario() {
   render() {
     return (
       <Container  style={{ backgroundColor: '#f2f2f2'}}>
-        <Content>
+        <Content style={{ margin: 16 }}>
           <View style={{ backgroundColor: '#f2f2f2',alignItems: 'center', justifyContent: 'center'}}>
             <Thumbnail style={{width: 142, height: 160, marginTop:50}} square source={require('./logo.png')} />   
           </View>
-          <Form style={{marginBottom: 20, marginTop:30}}>
-            <Item rounded style={{ margin: 10}}>
+          <Form style={{marginBottom: 20, marginTop:30, justifyContent: 'center'}}>
+            <Item rounded style={{ marginTop: 20}}>
               <Input   keyboardType="email-address" onChangeText={(email) => this.setState({ email }) }  style={{ padding: 10, paddingLeft:20, fontSize:12}} rounded placeholder="E-mail" />
             </Item>
-            <Item style={{ margin: 10}} rounded>
+            <Item style={{ marginTop: 20}} rounded>
               <Input secureTextEntry={true}  onChangeText={(senha) => this.setState({ senha })} style={{ padding: 10, paddingLeft:20,fontSize:12}} placeholder="Senha" />
-            </Item>
-             <Text  onPress={ () => { Actions.Cadastro() }} style={{ fontSize: 10, alignItems: 'flex-start', marginLeft: 20, color:'gray'}}>Não possui uma conta? Cadastre-se</Text>
+            </Item>             
           </Form>
+          <Text  onPress={ () => { Actions.Cadastro() }} style={{ fontSize: 10, alignItems: 'flex-start', marginLeft: 20, color:'gray'}}>Não possui uma conta? Cadastre-se!</Text>
+          <Text  onPress={ () => { Actions.Sobre({text: 'aaaa'}) }} style={{ fontSize: 10, alignItems: 'flex-start', marginLeft: 20, color:'gray', marginTop: 20, marginBottom:20}}>Saiba mais sobre o aplicativo</Text>
           <Button  onPress={ () => { this.logarUsuario(); }} style={{ margin: 10}} block info>
             <Text>Logar</Text>
           </Button>

@@ -8,9 +8,12 @@ import firebase from 'firebase';
 import Login from './src/components/login/login';
 import Cadastro from './src/components/cadastro/cadastro';
 import Sobre from './src/components/about/sobre';
-import Home from './src/components/home/home';
+import Formulario from './src/components/formulario/formulario';
 import Galeria from './src/components/galeria/galeria';
 import CameraMLZ from './src/components/camera/camera';
+import tipoCursoDagua from './src/components/tipoCursoDagua/tipoCursoDagua';
+
+import { AsyncStorage} from 'react-native';
 
 
 export default class mlz extends Component {
@@ -41,11 +44,12 @@ export default class mlz extends Component {
             return (
                 <Container>
                     <Router  navigationBarStyle={{backgroundColor: '#f2f2f2'}}  titleStyle={{color : "#0070c9"}}>
-                        <Scene key = "root" >            
-                            <Scene key = 'home' component = { Home } title = 'Home' hideNavBar = { true } initial={true}/> 
+                       <Scene key = "root" titleStyle={{color: '#0070c9'}}>
+                            <Scene key = 'tipoCursoDagua' component = { tipoCursoDagua } initial={true} title= 'Home' hideNavBar={ true } />                                         
+                            <Scene key = 'Formulario' component = { Formulario } title = 'Registrar Informação' hideNavBar = { false } /> 
                             <Scene key = 'Cadastro' component = { Cadastro } title = 'Cadastro' hideNavBar = { false } /> 
                             <Scene key = 'CameraMLZ' component = { CameraMLZ } title = 'cameraMLZ' hideNavBar = { true }  />
-                             <Scene key = 'Galeria' component = { Galeria } title = 'Galeria'  />
+                            <Scene key = 'Galeria' component = { Galeria } title = 'Galeria'  />
                             <Scene key = 'login' component = { Login } title = 'Login' hideNavBar / >             
                         </Scene>  
                     </Router>
@@ -55,11 +59,12 @@ export default class mlz extends Component {
              return ( 
                 <Container>
                     <Router navigationBarStyle={{backgroundColor: '#f2f2f2'}}  titleStyle={{color : "#0070c9"}}>
-                        <Scene key = "root" >   
-                            <Scene key = 'login' component = { Login } title = 'Login' hideNavBar initial={true}/ >
-                            <Scene key = 'home' component = { Home } title = 'Home' hideNavBar = { true }/>  
-                            <Scene key = 'Cadastro' component = { Cadastro } title = 'Cadastro' hideNavBar = { false } /> 
-                            <Scene key = 'sobre' component = { Sobre } title = 'Sobre' hideNavBar = { false } />                             
+                         <Scene key = "root"  titleStyle={{color: '#0070c9'}}>   
+                            <Scene key = 'login' component = { Login } title = 'Login' hideNavBar initial={true} hideNavBar = { true }/ >
+                             <Scene key = 'Formulario' component = { Formulario } title = 'Registrar Informação' hideNavBar = { false } /> 
+                            <Scene key = 'Cadastro' component = { Cadastro } title = 'Cadastro' hideNavBar = { false } />  
+                            <Scene key = 'Sobre' component = { Sobre } title = 'Sobre' hideNavBar = { false } />  
+                             <Scene key = 'tipoCursoDagua' component = { tipoCursoDagua } title = 'Home' hideNavBar = { true } />                                                                    
                             <Scene key = 'CameraMLZ' component = { CameraMLZ } title = 'cameraMLZ' hideNavBar = { true }  />
                             <Scene key = 'Galeria' component = { Galeria } title = 'Galeria'  />                      
                         </Scene>  
